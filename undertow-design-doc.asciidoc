@@ -1,0 +1,34 @@
+Undertow Design Document
+========================
+Stuart Douglas <sdouglas@redhat.com>
+v0.1, 2012
+
+This is the design document for the undertow web server. It covers general 
+arcitecture and design considerations, it is not a requirements document.
+
+:numbered!:
+[abstract]
+Overview
+--------
+The core Undertow architecture is based on the concept of lightweight async handlers.
+
+:numbered:
+
+The First Section
+-----------------
+Article sections start at level 1 and can be nested up to four levels
+deep.
+
+.An example handler chain
+image::https://raw.github.com/stuartwdouglas/tmp/master/images/example.png[Example handler image]
+
+
+ifdef::backend-docbook[]
+[index]
+Example Index
+-------------
+////////////////////////////////////////////////////////////////
+The index is normally left completely empty, it's contents being
+generated automatically by the DocBook toolchain.
+////////////////////////////////////////////////////////////////
+endif::backend-docbook[]
