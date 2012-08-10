@@ -11,5 +11,5 @@ Overview
 The core Undertow architecture is based on the concept of lightweight async handlers.
 
 
-![An Example Handler Chain](images/example.png "An Example Handler Chain")
+![An Example Handler Chain](https://raw.github.com/stuartwdouglas/tmp/master/images/example.png "An Example Handler Chain")
 
