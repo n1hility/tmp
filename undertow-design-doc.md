@@ -61,7 +61,6 @@ Handlers
 
 The basic handler interface is as follows:
 
-
 	public interface HttpHandler {
 
 	    /**
@@ -81,9 +80,67 @@ could attach the authenticated identity, which may then be used by a later
 authorization handler to decide if the user should be able to access the
 resource).
 
+The HttpCompletionHandler is invoked when the request is completed. Any
+handlers that require a cleanup action of some sort map wrap this instance
+before passing it to the next handler. As these are asynchronous handlers the
+call chain may return while the request is still running, so it is not
+possible to cleanup in a finally block (in fact handlers should generally not
+run any code after invoking the next handler).
 
+Initially the handlers are invoked in the XNIO read thread. This means that
+they must not perform any potentially blocking operations, as this will leave
+the server unable to process other requests until the write thread returns.
+Instead handlers should either use asynchronous operations that allow for
+callbacks, or delegate the task to a thread pool (such as the XNIO worker
+pool).
 
+The request and response streams may be wrapped by a handler, by registering a
+ChannelWrapper with the HttpServerExcahnge. This wrapping will generally only
+be used by handlers that implement a transfer or a content encoding. For
+instance to implement compression a handler would register a ChannelWrapper
+that compresses any data that passes through it, and writes the compressed
+data to the underlying channel. Note that these wrappers are only used to
+write out the response body, they cannot be used to change the way the status
+line and headers are written out.
 
+Only a single hander can responsible for reading the request or writing the
+body. If a handler attempts to get channel after another handler has already
+grabbed it then null will be returned.
 
+Persistent Connections
+----------------------
 
+Persistent connections are implemented by wrapping the request and response
+channels with either a chunking or fixed length channel. Once the request has
+been fully read the next request can be started immediately, with the next
+response being provided with a gated stream that will not allow the response
+to start until the current response is finished.
 
+Session Handling
+----------------
+
+Sessions will be implemented with a SessionHandler. When a request is
+processed this handler will check for an existing session cookie, if it is
+found it will retrieve the session from the session manager, and attach it to
+the HttpServerExchange. It will also attach the SessionManager to the
+HttpServerExchange. Retrieving the session may require an asynchronous
+operation (e.g. if the session is stored in a database, or located on another
+node in the cluster).
+
+Once the Session and SessionManager are attached to the exchange later handler
+can sore data in the session, or use the session manager to create a new
+session in one does not already exist.
+
+Error Handing
+-------------
+
+Error page generation is done by wrapping the HttpCompletionHandler. This
+wrapper can then check if the response has already been committed, and if not
+write out an error page. A completion handler that is later in the chain will
+take precedence, as its completion wrapper will be invoked first.
+
+Servlet
+=======
+
+Security
+========
