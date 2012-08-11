@@ -50,7 +50,8 @@ value is known to the state machine an interned version of the string will be
 returned directly, with no need to allocate a String or a StringBuilder. 
 
 *NOTE:* It has not been shown yet if this will provide a significant
-performance boost with a real workload to justify the extra complexity.
+performance boost with a real workload. If not then we may want to move to a
+simpler parser to avoid the extra complexity.
 
 Other protocols such as HTTPS, AJP and SPDY etc support will be provided
 through Channel implementation that as much as possible abstract away the
@@ -130,6 +131,19 @@ node in the cluster).
 Once the Session and SessionManager are attached to the exchange later handler
 can sore data in the session, or use the session manager to create a new
 session in one does not already exist.
+
+Configuration
+-------------
+
+The core will not provide a configuration API as such, instead it is
+programatically configured by assembling handler chains. XML configuration
+will be provided by the AS7 subsystem. This allows the server to be used in an
+embedded mode without any XML configuration. In order to provide a standalone
+servlet container to compete with Tomcat and Jetty we will use a cut down AS7
+instance, that just provides the web subsystem. This will mean that  users
+will get all the AS7 benefits (modules, management etc) with a smaller
+download and a container that is perceived as being more lightweight than a
+full AS7 instance.
 
 Error Handing
 -------------
